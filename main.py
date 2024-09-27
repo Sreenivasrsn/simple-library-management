@@ -1,90 +1,78 @@
-class Library:
-    def __init__(self, listofBooks):
-        self.books = listofBooks
+import csv
+from tkinter import *
+from tkinter import messagebox
 
-    def displayAvailableBooks(self):
-        print(f"\n{len(self.books)} AVAILABLE BOOKS ARE: ")
-        for book in self.books:
-            print(" ♦-- " + book)
-        print("\n")
+# Function to add a book to the library
+def add_book():
+    # Get the values from the entry boxes
+    book_id = book_id_entry.get()
+    book_title = book_title_entry.get()
+    book_author = book_author_entry.get()
+    
+    # Check if any field is empty
+    if book_id == "" or book_title == "" or book_author == "":
+        messagebox.showerror("Error", "Please fill all the fields!")
+    else:
+        # Open the CSV file in append mode
+        with open("library.csv", "a") as file:
+            writer = csv.writer(file)
+            # Write the values to the file
+            writer.writerow([book_id, book_title, book_author])
+        # Show a success message
+        messagebox.showinfo("Success", "Book added successfully!")
+        # Clear the entry boxes
+        book_id_entry.delete(0, END)
+        book_title_entry.delete(0, END)
+        book_author_entry.delete(0, END)
 
-    def borrowBook(self, name, bookname):
-        if bookname not in self.books:
-            print(
-                f"{bookname} BOOK IS NOT AVAILABLE EITHER TAKEN BY SOMEONE ELSE, WAIT UNTIL HE RETURNED.\n")
-        else:
-            track.append({name: bookname})
-            print("BOOK ISSUED : THANK YOU KEEP IT WITH CARE AND RETURN ON TIME.\n")
-            self.books.remove(bookname)
+# Function to search for a book
+def search_book():
+    # Get the value to search from the entry box
+    search_value = search_entry.get()
+    
+    # Open the CSV file in read mode
+    with open("library.csv", "r") as file:
+        reader = csv.reader(file)
+        # Loop through the rows in the file
+        for row in reader:
+            # If the search value matches any of the fields
+            if search_value in row:
+                # Show the book details in a message box
+                messagebox.showinfo("Book Details", f"Book ID: {row[0]}\nTitle: {row[1]}\nAuthor: {row[2]}")
+                # Clear the search entry box
+                search_entry.delete(0, END)
+                return
+        # If no match was found, show an error message
+        messagebox.showerror("Error", "Book not found!")
+        # Clear the search entry box
+        search_entry.delete(0, END)
 
-    def returnBook(self, bookname):
-        print("BOOK RETURNED : THANK YOU! \n")
-        self.books.append(bookname)
+# Create the GUI
+root = Tk()
+root.title("Library Management System")
 
-    def donateBook(self, bookname):
-        print("BOOK DONATED : THANK YOU VERY MUCH, HAVE A GREAT DAY AHEAD.\n")
-        self.books.append(bookname)
+# Create the labels and entry boxes
+Label(root, text="Book ID:").grid(row=0, column=0)
+book_id_entry = Entry(root)
+book_id_entry.grid(row=0, column=1)
 
+Label(root, text="Title:").grid(row=1, column=0)
+book_title_entry = Entry(root)
+book_title_entry.grid(row=1, column=1)
 
-class Student():
-    def requestBook(self):
-        print("So, you want to borrow book?")
-        self.book = input("Enter name of the book you want to borrow: ")
-        return self.book
+Label(root, text="Author:").grid(row=2, column=0)
+book_author_entry = Entry(root)
+book_author_entry.grid(row=2, column=1)
 
-    def returnBook(self):
-        print("So, you want to return book?")
-        name = input("Enter your name: ")
-        self.book = input("Enter name of the book you want to return: ")
-        if {name: self.book} in track:
-            track.remove({name: self.book})
-        return self.book
+Label(root, text="Search:").grid(row=3, column=0)
+search_entry = Entry(root)
+search_entry.grid(row=3, column=1)
 
-    def donateBook(self):
-        print("Okay! you want to donate book?")
-        self.book = input("Enter name of the book you want to donate: ")
-        return self.book
+# Create the buttons
+add_button = Button(root, text="Add Book", command=add_book)
+add_button.grid(row=4, column=0)
 
+search_button = Button(root, text="Search Book", command=search_book)
+search_button.grid(row=4, column=1)
 
-if __name__ == "__main__":
-
-    library = Library(
-        ["law", "python", "computernetworks", "databasemanagement", "datastructures", "economics"])
-    student = Student()
-    track = []
-
-    print("\t\t\t\t\t\t\t♦♦♦♦♦♦♦ WELCOME TO THE LIBRARY ♦♦♦♦♦♦♦\n")
-    print(
-        """CHOOSE WHAT YOU WANT TO DO:-\n1. Listing all books\n2. Borrow books\n3. Return books\n4. Donate books\n5. Track books\n6. exit the library\n""")
-
-    while (True):
-        # print(track)
-        try:
-            usr_response = int(input("Enter your choice: "))
-
-            if usr_response == 1:  # listing
-                library.displayAvailableBooks()
-            elif usr_response == 2:  # borrow
-                library.borrowBook(
-                    input("Enter your name: "), student.requestBook())
-            elif usr_response == 3:  # return
-                library.returnBook(student.returnBook())
-            elif usr_response == 4:  # donate
-                library.donateBook(student.donateBook())
-            elif usr_response == 5:  # track
-                for i in track:
-                    for key, value in i.items():
-                        holder = key
-                        book = value
-                        print(f"{book} book is taken/issued by {holder}.")
-                print("\n")
-                if len(track) == 0:
-                    print("NO BOOKS ARE ISSUED!. \n")
-
-            elif usr_response == 6:  # exit
-                print("THANK YOU ! \n")
-                exit()
-            else:
-                print("INVAILD INPUT! \n")
-        except Exception as e:  # catch errors
-            print(f"{e}---> INVALID INPUT! \n")
+root.mainloop()
